@@ -16,11 +16,23 @@ The code then goes back and requests the first parameter and actually reads in t
 
 That's why the values that are read back are out of step with the requests.
 
-There is a bit of code I've posted at post #14 in the following discussion that should work for an UNO. It's no substitute for a proper Modbus library:
+### Code with No Modbus Library
 
-[Discussion Link](https://forum.arduino.cc/t/max485-ttl-to-rs-485-modules-for-soil-npk-sensor/853077/115)
+There is a bit of code posted at post #14 in the following discussion that should work for an UNO. 
+
+It's no substitute for a proper Modbus library:
+
+[Credit to Discussion Link](https://forum.arduino.cc/t/max485-ttl-to-rs-485-modules-for-soil-npk-sensor/853077/115)
 
 ### Code with Modbus Library
 Credit to [LinktoModbus reply on arduino forum](https://forum.arduino.cc/t/max485-ttl-to-rs-485-modules-for-soil-npk-sensor/853077/116)
 
 ![Image](https://github.com/m-ogore/arduino_npk_sensor/assets/42109589/0f6f8593-ddfd-41e5-80ab-6a6a2bd9a44e)
+
+The code with no Modbus Library worked perfectly for me :). i used it with an LCD screen, dipped
+the one with the modbus Library worked then stopped working...haven't figure out why yet
+
+![video](}
+
+
+[Full video Presentation By Samson Ooko](https://www.youtube.com/watch?v=E8Quk76CivI)
