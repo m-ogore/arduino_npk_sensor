@@ -1,6 +1,8 @@
 ## NPK Sensor Issues
 
-For anybody else reading this thread that is having problems with the wrong results coming back from the NPK sensor, here's why:
+If your are reading this, YOU ARE NOT ALONE!!!!!
+
+You are having problems with the wrong results coming back from the NPK sensor, here's why:
 
 The issue is down to the awful code circulating around various websites that is used to read from one of those NPK sensors. Specifically in how the reading of the response from the sensor is handled.
 
