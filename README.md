@@ -1,36 +1,90 @@
-## NPK Sensor Issues
+# NPK Sensor Issues & UART on Arduino Nano 33 BLE Sense
 
-If your are reading this, YOU ARE NOT ALONE!!!!!
+---
 
-You are having problems with the wrong results coming back from the NPK sensor, here's why:
+## Having Trouble with NPK Sensor Readings?
 
-The issue is down to the awful code circulating around various websites that is used to read from one of those NPK sensors. Specifically in how the reading of the response from the sensor is handled.
+**You're not alone!**
 
-The code transmits a request for the first parameter and then assumes that the response from the NPK sensor is instantly available as soon as the request is transmitted. The code then attempts to read the nonexistent response by blindly reading in the number of bytes expected to be available without carrying out any checks first. This results in the first request returning only 0xFF (actually -1 signaling no character available).
+If you're getting incorrect readings from your NPK sensor, the issue is likely with the code used to handle responses from the sensor — especially if you're using code found online that does not use a proper Modbus library.
 
-The code then transmits a request for the second parameter and once again reads in the expected number of response bytes without carrying out any checks. However, what is read is actually the response to the first parameter query.
+### The Problem
 
-Similarly when requesting the third parameter, what is read in is the response to the second parameter query.
+Many implementations:
 
-The code then goes back and requests the first parameter and actually reads in the response to the third parameter.
+- Send a request and assume the sensor's response is instantly available.
+- Read bytes without checking if data is actually there.
+- As a result:
+  - Response for parameter 1 is missed (`0xFF` or `-1`).
+  - Response for parameter 2 is actually for parameter 1.
+  - Response for parameter 3 is actually for parameter 2.
+  - The next request for parameter 1 reads the stale parameter 3 data.
 
-That's why the values that are read back are out of step with the requests.
+This causes all values to be one step behind the actual request.
 
-### Code with No Modbus Library
+---
 
-There is a bit of code posted at post #14 in the following discussion that should work for an UNO. 
+## Code Without Modbus Library
 
-It's no substitute for a proper Modbus library:
+There’s a working example posted on the Arduino Forum that works well on an Arduino UNO:
 
-[Credit to Discussion Link](https://forum.arduino.cc/t/max485-ttl-to-rs-485-modules-for-soil-npk-sensor/853077/115)
+[Working Code Without Modbus Library – Forum Post #14](https://forum.arduino.cc/t/max485-ttl-to-rs-485-modules-for-soil-npk-sensor/853077/115)
 
-### Code with Modbus Library
-Credit to [LinktoModbus reply on arduino forum](https://forum.arduino.cc/t/max485-ttl-to-rs-485-modules-for-soil-npk-sensor/853077/116)
+This version worked perfectly for me with an LCD display.
 
-![Image](https://github.com/m-ogore/arduino_npk_sensor/assets/42109589/0f6f8593-ddfd-41e5-80ab-6a6a2bd9a44e)
+---
 
-The code with no Modbus Library worked perfectly for me :). i used it with an LCD screen, dipped
-the one with the modbus Library worked then stopped working...haven't figure out why yet
+## Code With Modbus Library
+
+Another implementation uses a proper Modbus library and is shared here:
+
+[Code With Modbus Library – Forum Post #15](https://forum.arduino.cc/t/max485-ttl-to-rs-485-modules-for-soil-npk-sensor/853077/116)
+
+This worked initially, but later stopped. Still troubleshooting why.
+
+![Sensor Output](https://github.com/m-ogore/arduino_npk_sensor/assets/42109589/0f6f8593-ddfd-41e5-80ab-6a6a2bd9a44e)
+
+---
+
+## Arduino Nano 33 BLE Sense & UART
+
+The `SoftwareSerial` library does not work on the Nano 33 BLE Sense due to the nRF52840 microcontroller (no pin change interrupts).  
+Instead, use the `UART` class from the Mbed OS core.
+
+### Sample Code
+
+```
+#include "mbed.h"
+#include "Arduino.h"
+
+// Create a UART object with your desired pins
+// RX = pin 4, TX = pin 3 (you can change them)
+UART mySerial(digitalPinToPinName(4), digitalPinToPinName(3), NC, NC);
+
+void setup() {
+  // Start built-in Serial for debugging
+  Serial.begin(9600);
+  while (!Serial);
+
+  // Start the custom UART port
+  mySerial.begin(9600);
+  Serial.println("Custom UART initialized on pins 4 (RX) and 3 (TX)");
+}
+
+void loop() {
+  // Echo data between Serial and mySerial
+  if (mySerial.available()) {
+    char c = mySerial.read();
+    Serial.print("From UART: ");
+    Serial.println(c);
+  }
+
+  if (Serial.available()) {
+    char c = Serial.read();
+    mySerial.write(c);
+  }
+}
+
 
 ![video](}
 
