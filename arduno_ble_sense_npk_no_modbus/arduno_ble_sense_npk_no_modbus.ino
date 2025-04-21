@@ -1,10 +1,10 @@
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h> This line has no use with the BLE 33 Sense
 #include <Wire.h>
 
 #define RE 7
 #define DE 6
 #define RO 8
-#define D1 9
+#define DI 9
 
 const uint32_t TIMEOUT = 500UL;
 
@@ -14,7 +14,14 @@ const byte phos[] = {0x01, 0x03, 0x00, 0x1f, 0x00, 0x01, 0xb5, 0xcc};
 const byte pota[] = {0x01, 0x03, 0x00, 0x20, 0x00, 0x01, 0x85, 0xc0};
 
 byte values[11];
-SoftwareSerial mod(RO, D1); // Rx pin, Tx pin
+/*
+ * Change the line below to use UART 
+ * From:
+ * SoftwareSerial mod(RO, D1); // Rx pin, Tx pin
+ * To
+ * UART mod(RO. D1, NC, NC)
+ */
+UART mod(RO, DI, NC, NC);
 
 int npk_ratio[] = { 17,   //N 
                     17,   //P
